@@ -32,7 +32,15 @@ function edges = DetectVerticalEdges(img)
     %%%%%%%%%% indexing to make a matrix of the "left" pixels and a matrix 
     %%%%%%%%%% of the "right" pixels, and subtract the two matrices.
     %%%%%%%%%% REMEMBER: left/right position is the SECOND index in MATLAB.
+    left = zeros(height, width-1);
+    right = zeros(height, width-1);
+    left(1:height, 1:width-1) = img(1:height, 1:width-1);
+    right(1:height, 1:width-1) = img(1:height, 2:width);
     edges = zeros(height, width-1);
+    edges(:,:) = right(:,:) - left(:,:);
+    s = min(edges, [], 'all');
+    t = max(edges, [], 'all');
+    edges(:,:) = uint8((edges(:,:) - s) / (t-s) * 255);
     
     %%%%%%%%%% End of your part (a) code.
 end
@@ -50,7 +58,11 @@ function blurred = BoxBlur(img)
         for x=1:width-(n-1)
             %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
             %%%%%%% Your part (b) code here. Calculate blurred(y,x).
-            
+            for i=1:n-1
+                for j = 1:n-1
+                    blurred(y,x) = blurred(y,x) + img(y+i,x+j);
+                end
+            end
             %%%%%%% End of part (b) code
         end
     end
@@ -59,3 +71,4 @@ function blurred = BoxBlur(img)
     % brighter:
     blurred = blurred / n^2;    
 end
+

@@ -8,6 +8,8 @@ A = [cos(theta) -sin(theta); sin(theta) cos(theta)];
 %matrix, and run this script.
 %%%%%%%%%%%% Your code here %%%%%%%%%%%%%%
 T = [1 0;0 1];
+B = [1 0; 0 0.5];
+T = A*B;
 
 %%%%%%%%%%%% end of your code %%%%%%%%%%%%%%
 

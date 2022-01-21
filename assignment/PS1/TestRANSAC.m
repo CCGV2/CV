@@ -7,7 +7,7 @@
 %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-N=10;
+N=100;
 sigma = .1; %additive noise on good points
 outlierFraction=0; %percent of totally random outliers to add
 
@@ -19,11 +19,11 @@ maxIter = 100;
 
 %With our error function, this is a bound on abs(distance^2 - R^2).
 %Points with error < this are called inliers.
-maxInlierError = 8.0;
+maxInlierError = 4.0;
 
 %Number of inliers required to call a fit "good" (not counting the initial
 %3 points that were used to fit the circle)
-goodFitThresh = 5; 
+goodFitThresh = 30; 
 
 
 [cx, cy, R] = RANSAC(Data, maxIter, maxInlierError, goodFitThresh);

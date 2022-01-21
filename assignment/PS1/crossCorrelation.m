@@ -18,7 +18,7 @@ imshow(template, [] , 'InitialMagnification', 50);
 %                      (Your code should be very simple.)                      %
 %                                                                              %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-correlationImg = [];
+correlationImg = normxcorr2(template, photo);
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %                                                                              %
@@ -56,7 +56,7 @@ largerTemplate = rgb2gray(imread('trailerSlightlyBigger.png'));
 %             Repeat the process from (a) with the larger template.            %
 %                                                                              %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-mismatchedCorrelationImg = [];
+mismatchedCorrelationImg = normxcorr2(largerTemplate, photo);
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %                                                                              %

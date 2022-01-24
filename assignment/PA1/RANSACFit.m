@@ -97,8 +97,21 @@ function dists = ComputeError(H, pt1, pt2, match)
     % matrix whose first row is pt1(match(1,1),:), second row is 
     % pt1(match(2,1),:), etc. (You may use 'for' loops if this is too
     % confusing, but understanding it will make your code simple and fast.)
+    N1 = size(pt1,1);
+    N2 = size(pt2,1);
+    M = size(match,1);
     dists = zeros(size(match,1),1);
-
+    a = pt1(match(:, 1),:);
+    b = pt2(match(:, 2),:);
+    for i = 1:M
+        X = a(i,:);
+        Y = b(i,:);
+        X = [X';1];
+        Y = [Y';1];
+        X = H * X;
+        d = X-Y;
+        dists(i)=sqrt(d(1)^2+d(2)^2+d(3)^2);
+    end
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %                                                                              %
 %                                 END YOUR CODE                                %

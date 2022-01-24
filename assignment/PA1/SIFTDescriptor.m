@@ -39,9 +39,10 @@ function descriptors = SIFTDescriptor(pyramid, keyPtLoc, keyPtScale)
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
         % gradient image, for gradients in x direction.
         img_dx = zeros(size(currentImage)); 
+        img_dx = filter2([-1 0 1], currentImage, 'same');
         % gradients in y direction.
         img_dy = zeros(size(currentImage));
-
+        img_dy = filter2([-1;0;1], currentImage, 'same');
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %                                                                              %
 %                               END OF YOUR CODE                               %
@@ -60,8 +61,15 @@ function descriptors = SIFTDescriptor(pyramid, keyPtLoc, keyPtScale)
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
          % Calculate the magnitude and orientation of the gradient.
         grad_mag{scale} = zeros(size(currentImage));
+        grad_mag{scale} = sqrt(img_dy.*img_dy + img_dx.*img_dx);
         grad_theta{scale} = zeros(size(currentImage));
-
+        grad_theta{scale} = atan2(img_dy, img_dx);
+        tmp = zeros(size(grad_theta{scale}));
+        for y = 1:size(grad_theta{scale},2)
+            for x = 1:size(grad_theta{scale},1)
+                tmp(x,y) = atan2(img_dy(x,y),img_dx(x,y));
+            end
+        end
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %                                                                              %
 %                               END OF YOUR CODE                               %
@@ -135,12 +143,12 @@ function descriptors = SIFTDescriptor(pyramid, keyPtLoc, keyPtScale)
 %                                                                              %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
         % Step 1: compute the dominant gradient direction of the patch
-        patch_angle_offset = 0;
-
+        patch_angle_offset = ComputeDominantDirection(patch_mag(:,:), patch_theta(:, :));
+        
         
         % Step 2: change patch_theta so it's relative to the dominant direction
-        patch_theta = patch_theta;
-
+        patch_theta = patch_theta - patch_angle_offset;
+        
         
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %                                                                              %
@@ -185,7 +193,12 @@ function descriptors = SIFTDescriptor(pyramid, keyPtLoc, keyPtScale)
         % concatenate the histogram descriptors to it like this: 
         % feature = [feature, histogram]
         feature = [];
-        
+        for y = 1:4:size(patch_theta,2)-1
+            for x = 1:4:size(patch_theta,1)-1
+                [histogram, tmp] = ComputeGradientHistogram(8, patch_mag(y:y+3,x:x+3), patch_theta(y:y+3,x:x+3));
+                feature = [feature, histogram];
+            end
+        end
 
         
         
@@ -242,7 +255,12 @@ function [histogram, angles] = ComputeGradientHistogram(num_bins, gradient_magni
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
     histogram = zeros(1, num_bins);
-
+    for y = 1:size(gradient_magnitudes,2)
+        for x = 1:size(gradient_magnitudes,1)
+            
+            histogram(1,fix(gradient_angles(y,x)/angle_step)+1) = histogram(1,fix(gradient_angles(y,x)/angle_step)+1) + gradient_magnitudes(y,x);
+        end
+    end
     
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -277,12 +295,14 @@ function direction = ComputeDominantDirection(gradient_magnitudes, gradient_angl
     num_bins = 36;
     % Step 1:
     % compute the 36-bin histogram of angles using ComputeGradientHistogram()
-    
+    [histogram, angles] = ComputeGradientHistogram(num_bins, gradient_magnitudes, gradient_angles);
     % Step 2:
     % Find the maximum value of the gradient histogram, and set "direction"
     % to the angle corresponding to the maximum. (To match our solutions,
     % just use the lower-bound angle of the max histogram bin. (E.g. return
     % 0 radians if it's bin 1.)
+    [M,I] = max(histogram);
+    direction = angles(I);
     
     
 
